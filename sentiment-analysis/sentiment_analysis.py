@@ -1,5 +1,6 @@
 import os
 from collections import Counter
+import numpy as np
 
 print (os.getcwd())
 
@@ -32,5 +33,20 @@ for i in range(len(reviews)):
             negative_count[word] += 1
             total_count[word] += 1
 
-print(len(positive_count))    
+print(len(positive_count))
+
+positive_negative_ratio = Counter()
+
+for term, count in total_count.most_common():
+    if count > 100:
+        ratio = positive_count[term] / float(negative_count[term]+1)
+        positive_negative_ratio[term] = np.log(ratio)
+print("Pos-to-neg ratio for 'the' = {}".format(positive_negative_ratio["the"]))
+print("Pos-to-neg ratio for 'amazing' = {}".format(positive_negative_ratio["amazing"]))
+print("Pos-to-neg ratio for 'terrible' = {}".format(positive_negative_ratio["terrible"]))
+
+print("most common positive: ")
+print(positive_negative_ratio.most_common()[0:29])
+print("most common negative: ")
+print(positive_negative_ratio.most_common()[-31:-1])
     
