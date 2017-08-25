@@ -10,7 +10,7 @@ class Node:
         for n in self.inbound_nodes:
             n.outbound_nodes.append(self)
         # The calculated value
-        slef.value = None
+        self.value = None
 
     def forward(self):
         """
@@ -42,6 +42,13 @@ class Add(Node):
         for n in self.inbound_nodes:
             self.value += n.value
 
+class Linear(Node):
+    def __init__(self, inputs, weights, bias):
+        Node.__init__(self, [inputs, weights, bias])
+
+    def forward(self):
+        wightedInputs = sum([w*x for w,x in zip(self.inbound_nodes[1].value, self.inbound_nodes[0].value)])
+        self.value = wightedInputs + self.inbound_nodes[2].value
 
 def topological_sort(feed_dict):
     """
