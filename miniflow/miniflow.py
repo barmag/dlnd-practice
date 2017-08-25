@@ -1,3 +1,4 @@
+import numpy as np
 # A simplified tensorflow like DNN engine
 
 class Node:
@@ -47,8 +48,10 @@ class Linear(Node):
         Node.__init__(self, [inputs, weights, bias])
 
     def forward(self):
-        wightedInputs = sum([w*x for w,x in zip(self.inbound_nodes[1].value, self.inbound_nodes[0].value)])
-        self.value = wightedInputs + self.inbound_nodes[2].value
+        X_ = self.inbound_nodes[0].value
+        W_ = self.inbound_nodes[1].value
+        biases = self.inbound_nodes[2].value
+        self.value = np.dot(X_, W_) + biases
 
 def topological_sort(feed_dict):
     """
