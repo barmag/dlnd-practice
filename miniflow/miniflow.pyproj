@@ -11,7 +11,7 @@
     <OutputPath>.</OutputPath>
     <Name>miniflow</Name>
     <RootNamespace>miniflow</RootNamespace>
-    <InterpreterId>Global|ContinuumAnalytics|Anaconda36-64</InterpreterId>
+    <InterpreterId>Global|VisualStudio|tensorflow</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,6 +22,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="hello-tensorflow.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="miniflow.py" />
     <Compile Include="nn.py">
       <SubType>Code</SubType>
@@ -29,6 +32,7 @@
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="Global|ContinuumAnalytics|Anaconda36-64" />
+    <InterpreterReference Include="Global|VisualStudio|tensorflow" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
