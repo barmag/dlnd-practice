@@ -22,6 +22,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="linear-functions.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tensorflow-math.py">
       <SubType>Code</SubType>
     </Compile>
