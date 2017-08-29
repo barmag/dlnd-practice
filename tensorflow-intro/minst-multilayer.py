@@ -2,6 +2,9 @@ import tensorflow as tf
 import numpy as np
 from tensorflow.examples.tutorials.mnist import input_data
 
+# True, perform training, else load model from file
+training = False
+
 mnist = input_data.read_data_sets(".", one_hot=True)
 # hyper-parameters
 learning_rate = 0.001
@@ -37,22 +40,30 @@ optimizer = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minim
 correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(y, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
+save_file = "./model.ckpt"
 saver = tf.train.Saver()
-with tf.Session() as sess:
-    sess.run(tf.global_variables_initializer())
-    # training cycle
-    for epoch in range(training_epoch):
-        total_batch = int(mnist.train.num_examples/batch_size)
-        for i in range(total_batch):
-            batch_x, batch_y = mnist.train.next_batch(batch_size)
-            # run training
-            sess.run(optimizer, feed_dict={x: np.reshape(batch_x, [-1, n_inputs]), y: batch_y})
+if training:
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        # training cycle
+        for epoch in range(training_epoch):
+            total_batch = int(mnist.train.num_examples/batch_size)
+            for i in range(total_batch):
+                batch_x, batch_y = mnist.train.next_batch(batch_size)
+                # run training
+                sess.run(optimizer, feed_dict={x: np.reshape(batch_x, [-1, n_inputs]), y: batch_y})
 
-        # display progress
-        if (epoch+1) % 5 == 0:
-            valid_accuracy = sess.run(accuracy, feed_dict={x: mnist.validation.images, y: mnist.validation.labels})
+            # display progress
+            if (epoch+1) % 5 == 0:
+                valid_accuracy = sess.run(accuracy, feed_dict={x: mnist.validation.images, y: mnist.validation.labels})
 
-            print("Epoch {:<3} - validation accuracy: {}".format(epoch+1, valid_accuracy))
+                print("Epoch {:<3} - validation accuracy: {}".format(epoch+1, valid_accuracy))
     
-    saver.save(sess, "./model.ckpt")
-    print("model saved")
+        saver.save(sess, save_file)
+        print("model saved")
+else:
+    with tf.Session() as sess:
+        saver.restore(sess, save_file)
+        test_accuracy = sess.run(accuracy, feed_dict={x: mnist.test.images, y: mnist.test.labels})
+
+        print("test accuracy {}".format(test_accuracy))
