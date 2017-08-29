@@ -37,6 +37,7 @@ optimizer = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minim
 correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(y, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
+saver = tf.train.Saver()
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     # training cycle
@@ -48,9 +49,10 @@ with tf.Session() as sess:
             sess.run(optimizer, feed_dict={x: np.reshape(batch_x, [-1, n_inputs]), y: batch_y})
 
         # display progress
-        if epoch % 10 == 0:
+        if (epoch+1) % 5 == 0:
             valid_accuracy = sess.run(accuracy, feed_dict={x: mnist.validation.images, y: mnist.validation.labels})
 
-            print("Epoch {:<3} - validation accuracy: {}".format(epoch, valid_accuracy))
+            print("Epoch {:<3} - validation accuracy: {}".format(epoch+1, valid_accuracy))
     
-    
+    saver.save(sess, "./model.ckpt")
+    print("model saved")
