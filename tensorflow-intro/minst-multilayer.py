@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 from tensorflow.examples.tutorials.mnist import input_data
 
-mnist = input_data.read_data_sets(".", one_hot=True, reshape=False)
+mnist = input_data.read_data_sets(".", one_hot=True)
 # hyper-parameters
 learning_rate = 0.001
 training_epoch = 20
@@ -33,6 +33,9 @@ logits = tf.add(tf.matmul(layer_1, weights[1]), biases[1])
 cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=y))
 
 optimizer = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minimize(cost)
+# Calculate accuracy
+correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(y, 1))
+accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
@@ -43,5 +46,11 @@ with tf.Session() as sess:
             batch_x, batch_y = mnist.train.next_batch(batch_size)
             # run training
             sess.run(optimizer, feed_dict={x: np.reshape(batch_x, [-1, n_inputs]), y: batch_y})
+
+        # display progress
+        if epoch % 10 == 0:
+            valid_accuracy = sess.run(accuracy, feed_dict={x: mnist.validation.images, y: mnist.validation.labels})
+
+            print("Epoch {:<3} - validation accuracy: {}".format(epoch, valid_accuracy))
     
     
