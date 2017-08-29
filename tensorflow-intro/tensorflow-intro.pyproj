@@ -27,12 +27,16 @@
     <Compile Include="linear-functions.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="minst-multilayer.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tensorflow-math.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="tensorflow_inputs.py" />
   </ItemGroup>
   <ItemGroup>
+    <InterpreterReference Include="Global|VisualStudio|dlnd-tf-lab" />
     <InterpreterReference Include="Global|VisualStudio|tensorflow" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
