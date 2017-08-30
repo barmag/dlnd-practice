@@ -4,13 +4,14 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>4505d916-a72d-4cf3-96c0-1c2268e974cd</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>DeepMnist.py</StartupFile>
+    <StartupFile>mnist-softmax.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>DeepMnist</Name>
     <RootNamespace>DeepMnist</RootNamespace>
+    <InterpreterId>Global|VisualStudio|dlnd-tf-lab</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,7 +22,10 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="DeepMnist.py" />
+    <Compile Include="mnist-softmax.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="Global|VisualStudio|dlnd-tf-lab" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

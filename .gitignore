@@ -99,3 +99,6 @@ ENV/
 
 # mypy
 .mypy_cache/
+*.suo
+*.gz
+/tensorflow-intro/cifar-10-batches-py
