@@ -2,16 +2,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>386371e2-8f5a-4c54-bf5e-cd0b88cd93ec</ProjectGuid>
+    <ProjectGuid>4505d916-a72d-4cf3-96c0-1c2268e974cd</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>dlnd_image_classification.py</StartupFile>
+    <StartupFile>DeepMnist.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
-    <Name>tensorflow-intro</Name>
-    <RootNamespace>tensorflow-intro</RootNamespace>
-    <InterpreterId>Global|VisualStudio|dlnd-tf-lab</InterpreterId>
+    <Name>DeepMnist</Name>
+    <RootNamespace>DeepMnist</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,23 +21,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="dlnd_image_classification.py" />
-    <Compile Include="first-dnn-tensorflow-relu.py" />
-    <Compile Include="intro_to_tensorflow.py" />
-    <Compile Include="linear-functions.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="minst-multilayer.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="tensorflow-math.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="tensorflow_inputs.py" />
-  </ItemGroup>
-  <ItemGroup>
-    <InterpreterReference Include="Global|VisualStudio|dlnd-tf-lab" />
-    <InterpreterReference Include="Global|VisualStudio|tensorflow" />
+    <Compile Include="DeepMnist.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
