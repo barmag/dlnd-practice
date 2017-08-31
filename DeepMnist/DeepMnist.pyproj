@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>4505d916-a72d-4cf3-96c0-1c2268e974cd</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>mnist-softmax.py</StartupFile>
+    <StartupFile>mnist-deep.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -22,6 +22,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="mnist-deep.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="mnist-softmax.py" />
   </ItemGroup>
   <ItemGroup>
