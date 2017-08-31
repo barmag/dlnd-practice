@@ -37,13 +37,13 @@ o_max_p2 = get_max_pool(o_conv2)
 
 # fully connected layer
 w_fc1 = get_weights([7*7*64, 1024])
-b_fc1 = get_bias(1024)
+b_fc1 = get_bias([1024])
 
 o_flat = tf.reshape(o_max_p2, [-1, 7*7*64])
 o_fc1 = tf.nn.relu(tf.matmul(o_flat, w_fc1) + b_fc1)
 
 # dropout
-keep_prop = tf.placeholder(tf.float32)
+keep_prob = tf.placeholder(tf.float32)
 o_fc1_drop = tf.nn.dropout(o_fc1, keep_prob)
 
 # output layer
@@ -51,3 +51,23 @@ w_fc_out = get_weights([1024, 10])
 b_fc_out = get_bias([10])
 
 final_out = tf.matmul(o_fc1_drop, w_fc_out) + b_fc_out
+
+validation_labels = tf.placeholder(tf.float32, [None, 10])
+cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=validation_labels, logits=final_out)
+
+optimizer = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(cross_entropy)
+correct_prediction = tf.equal(tf.arg_max(validation_labels, 1), tf.arg_max(final_out, 1))
+accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+
+# train network
+with tf.Session() as sess:
+    sess.run(tf.global_variables_initializer())
+    for i in range(1000):
+        batch = mnist.train.next_batch(50)
+        # display progress
+        if i%100 == 0:
+            train_accuracy = accuracy.eval(feed_dict={x:batch[0], validation_labels:batch[1], keep_prob:1.})
+            print("step {}, training accuracy: {}".format(i, train_accuracy))
+        optimizer.run(feed_dict={x:batch[0], validation_labels:batch[1], keep_prob:0.5})
+    test_accuracy = accuracy.eval(feed_dict={x:mnist.test.images, validation_labels:mnist.test.labels, keep_prob:1.0})
+    print("test accuracy: {}".format(test_accuracy))
