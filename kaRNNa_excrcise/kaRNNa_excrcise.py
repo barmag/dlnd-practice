@@ -55,3 +55,23 @@ def build_inputs(batch_size, num_steps):
     labels = tf.placeholder(tf.int32, [batch_size, num_steps], name="labels")
     keep_prob = tf.placeholder(tf.float32, name="keep_prob")
     return input, labels, keep_prob
+
+# build lstm layer
+def build_lstm(lstm_size, num_layers, batch_size, keep_prob):
+    """Build LSTM cell
+    Argumets
+    --------
+    lstm_size: size of hidden layers in cell
+    num_layers: number of LSTM layers
+    batch_size: batch size
+    keep_prob: dropout keep probability
+    """
+    def build_cell(lstm_size, keep_prob):
+        lstm = tf.contrib.rnn.BasicLSTMCell(lstm_size)
+        drop = tf.contrib.rnn.DropoutWrapper(lstm, output_keep_prob=keep_prob)
+
+        return drop
+
+    # stack multiple lstm cells, for deep learning
+    cell = tf.contrib.rnn.MultiRNNCell([build_cell(lstm_size, keep_prob) for _ in range(num_layers)])
+    initial_state = cell.zero_state(batch_size, tf.float32)
