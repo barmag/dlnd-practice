@@ -75,3 +75,23 @@ def build_lstm(lstm_size, num_layers, batch_size, keep_prob):
     # stack multiple lstm cells, for deep learning
     cell = tf.contrib.rnn.MultiRNNCell([build_cell(lstm_size, keep_prob) for _ in range(num_layers)])
     initial_state = cell.zero_state(batch_size, tf.float32)
+    return cell, initial_state
+
+def build_output(lstm_out, in_size, out_size):
+    """Build a fully connected softmax layer, return the softmax output and logits.
+    Arguments
+    ---------
+    lstm_out: Input tensor
+    in_size: size of the input tensor
+    out_size: size of the softmax layer
+    """
+    seq_output = tf.concat(lstm_out, axis=1)
+    x = tf.reshape([-1, in_size])
+
+    with tf.variable_scope("softmax"):
+        softmax_w = tf.Variable(tf.truncated_normal((in_size, out_size), stddev=0.1))
+        softmax_b = tf.Variable(tf.zeros(out_size))
+
+    logits = tf.matmul(x, softmax_w) + softmax_b
+    out = tf.nn.softmax(logits, name="predictions")
+    return out, logits
