@@ -95,3 +95,19 @@ def build_output(lstm_out, in_size, out_size):
     logits = tf.matmul(x, softmax_w) + softmax_b
     out = tf.nn.softmax(logits, name="predictions")
     return out, logits
+
+def build_loss(logits, targets, lstm_size, num_classes):
+    """Calcualte the loss for training
+    Arguments
+    ---------
+    logits: logits from final fully connected layer
+    targets: target labels
+    lstm_size: number of lstm hidden units
+    num_classes: num of classes in targets
+    """
+    y_one_hot = tf.one_hot(targets, num_classes)
+    y_reshaped = tf.reshape(y_one_hot, logits.get_shape())
+
+    loss = tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=y_reshaped)
+    loss = tf.reduce_mean(loss)
+    return loss
