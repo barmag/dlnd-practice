@@ -126,3 +126,26 @@ def build_optimizer(loss, learning_rate, grad_clip):
     train_op = tf.train.AdamOptimizer(learning_rate)
     optimizer = train_op.apply_gradients(zip(grads, tvars))
     return optimizer
+
+class CharRNN:
+    def __init__(self, num_classes, batch_size=64, num_steps=50,
+                 lstm_size=128, num_layers=2, learning_rate=0.001,
+                 grad_clip=5, sampling=False):
+        
+        if sampling == True:
+            batch_size, num_steps = 1,1
+        
+        tf.reset_default_graph()
+        self.inputs, self.targets, self.keep_prob = build_inputs(batch_size, num_steps)
+
+        cell, self.initial_state = build_lstm(lstm_size, num_layers, batch_size, self.keep_prob)
+
+        x_one_hot = tf.one_hot(self.inputs, num_classes)
+        output, state = tf.nn.dynamic_rnn(cell, x_one_hot, initial_state=self.initial_state)
+        self.final_state = state
+
+        self.predection, self.logits = build_output(output, lstm_size, num_classes)
+
+        self.loss = build_loss(self.logits, self.targets, lstm_size, num_classes)
+        self.optimizer = build_optimizer(self.loss, learning_rate, grad_clip)
+    
