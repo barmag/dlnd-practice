@@ -42,3 +42,16 @@ def get_batches(arr, n_seqs, n_steps):
 
 batches = get_batches(encoded, 10, 50)
 x, y = next(batches)
+
+# build network
+def build_inputs(batch_size, num_steps):
+    '''Define placeholders for inputs, labels, and dropout
+    Arguments
+    ---------
+    batch_size: Batch size
+    num_steps: number of sequence steps per batch
+    '''
+    inputs = tf.placeholder(tf.int32, [batch_size, num_steps], name="inputs")
+    labels = tf.placeholder(tf.int32, [batch_size, num_steps], name="labels")
+    keep_prob = tf.placeholder(tf.float32, name="keep_prob")
+    return input, labels, keep_prob
