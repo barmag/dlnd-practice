@@ -111,3 +111,18 @@ def build_loss(logits, targets, lstm_size, num_classes):
     loss = tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=y_reshaped)
     loss = tf.reduce_mean(loss)
     return loss
+
+# optimizer
+def build_optimizer(loss, learning_rate, grad_clip):
+    """Build optimizer for training, using gradient clip
+    Argumnets
+    ---------
+    loss: network loss
+    learning_rate: network learning rate
+    grad_clip: upper bound to clip gradients to prevent value explosion
+    """
+    tvars = tf.trainable_variables()
+    grads, _ = tf.clip_by_global_norm(tf.gradients(loss, tvars), grad_clip)
+    train_op = tf.train.AdamOptimizer(learning_rate)
+    optimizer = train_op.apply_gradients(zip(grads, tvars))
+    return optimizer
