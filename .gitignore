@@ -102,3 +102,4 @@ ENV/
 *.suo
 *.gz
 /tensorflow-intro/cifar-10-batches-py
+/kaRNNa_excrcise/checkpoints
