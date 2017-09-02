@@ -160,14 +160,14 @@ keep_prob = 0.5
 
 # training
 epochs = 20
-save_every_n = 100
+save_every_n = 200
 
 model = CharRNN(len(vocab), batch_size=batch_size, num_steps=num_steps, lstm_size=lstm_size
                 , num_layers=num_layers, learning_rate=learning_rate)
 saver = tf.train.Saver(max_to_keep=100)
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
-    saver.restore(sess, 'checkpoints/i3960_l512.ckpt.ckpt')
+    saver.restore(sess, 'checkpoints/i3960_l512.ckpt')
     counter = 0
     for e in range(epochs):
         new_state = sess.run(model.initial_state)
