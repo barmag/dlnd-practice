@@ -9,6 +9,7 @@ vocab = sorted(set(text))
 #for i, c in enumerate(vocab):
 #    vocab_to_int[c] = i
 vocab_to_int = {c: i for i, c in enumerate(vocab)}
+int_to_vocab = dict(enumerate(vocab))
 #encoded = np.array([vocab_to_int[c] for c in text], dtype=np.int32)
 
 encoded = np.array([vocab_to_int[c] for c in text])
@@ -145,7 +146,7 @@ class CharRNN:
         output, state = tf.nn.dynamic_rnn(cell, x_one_hot, initial_state=self.initial_state)
         self.final_state = state
 
-        self.predection, self.logits = build_output(output, lstm_size, num_classes)
+        self.prediction, self.logits = build_output(output, lstm_size, num_classes)
 
         self.loss = build_loss(self.logits, self.targets, lstm_size, num_classes)
         self.optimizer = build_optimizer(self.loss, learning_rate, grad_clip)
@@ -159,31 +160,78 @@ learning_rate = 0.001
 keep_prob = 0.5
 
 # training
-epochs = 20
-save_every_n = 200
+def train_network():
+    epochs = 20
+    save_every_n = 200
+    
+    model = CharRNN(len(vocab), batch_size=batch_size, num_steps=num_steps, lstm_size=lstm_size
+                    , num_layers=num_layers, learning_rate=learning_rate)
+    saver = tf.train.Saver(max_to_keep=100)
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        saver.restore(sess, 'checkpoints/i3960_l512.ckpt')
+        counter = 0
+        for e in range(epochs):
+            new_state = sess.run(model.initial_state)
+            loss = 0
+            for x,y in get_batches(encoded, batch_size, num_steps):
+                counter += 1
+                start = time.time()
+                feed_dict = {model.inputs: x, model.targets: y, model.keep_prob: keep_prob,
+                             model.initial_state: new_state}
+                batch_loss, new_state, _ = sess.run([model.loss, model.final_state, model.optimizer]
+                                                    , feed_dict=feed_dict)
+                end = time.time()
+                print('Epoch: {}/{}... '.format(e+1, epochs),
+                      'Training Step: {}... '.format(counter),
+                      'Training loss: {:.4f}... '.format(batch_loss),
+                      '{:.4f} sec/batch'.format((end-start)))
+                if (counter % save_every_n == 0):
+                    saver.save(sess, "checkpoints/i{}_l{}.ckpt".format(counter, lstm_size))
+        saver.save(sess, "checkpoints/i{}_l{}.ckpt".format(counter, lstm_size))
+    return epochs, model, save_every_n, saver
 
-model = CharRNN(len(vocab), batch_size=batch_size, num_steps=num_steps, lstm_size=lstm_size
-                , num_layers=num_layers, learning_rate=learning_rate)
-saver = tf.train.Saver(max_to_keep=100)
-with tf.Session() as sess:
-    sess.run(tf.global_variables_initializer())
-    saver.restore(sess, 'checkpoints/i3960_l512.ckpt')
-    counter = 0
-    for e in range(epochs):
+# epochs, model, save_every_n, saver = train_network()
+
+def pick_top_n(preds, vocab_size, top_n=5):
+    p = np.squeeze(preds)
+    p[np.argsort(p)[:-top_n]] = 0
+    p = p / np.sum(p)
+    c = np.random.choice(vocab_size, 1, p=p)[0]
+    return c
+
+def sample(checkpoint, n_samples, lstm_size, vocab_size, prime="The "):
+    samples = [c for c in prime]
+    model = CharRNN(len(vocab), lstm_size=lstm_size, sampling=True)
+    saver = tf.train.Saver()
+    with tf.Session() as sess:
+        saver.restore(sess, checkpoint)
         new_state = sess.run(model.initial_state)
-        loss = 0
-        for x,y in get_batches(encoded, batch_size, num_steps):
-            counter += 1
-            start = time.time()
-            feed_dict = {model.inputs: x, model.targets: y, model.keep_prob: keep_prob,
-                         model.initial_state: new_state}
-            batch_loss, new_state, _ = sess.run([model.loss, model.final_state, model.optimizer]
-                                                , feed_dict=feed_dict)
-            end = time.time()
-            print('Epoch: {}/{}... '.format(e+1, epochs),
-                  'Training Step: {}... '.format(counter),
-                  'Training loss: {:.4f}... '.format(batch_loss),
-                  '{:.4f} sec/batch'.format((end-start)))
-            if (counter % save_every_n == 0):
-                saver.save(sess, "checkpoints/i{}_l{}.ckpt".format(counter, lstm_size))
-    saver.save(sess, "checkpoints/i{}_l{}.ckpt".format(counter, lstm_size))
+        for c in prime:
+            x = np.zeros((1, 1))
+            x[0,0] = vocab_to_int[c]
+            feed = {model.inputs: x,
+                    model.keep_prob: 1.,
+                    model.initial_state: new_state}
+            preds, new_state = sess.run([model.prediction, model.final_state], 
+                                         feed_dict=feed)
+
+        c = pick_top_n(preds, len(vocab))
+        samples.append(int_to_vocab[c])
+
+        for i in range(n_samples):
+            x[0,0] = c
+            feed = {model.inputs: x,
+                    model.keep_prob: 1.,
+                    model.initial_state: new_state}
+            preds, new_state = sess.run([model.prediction, model.final_state], 
+                                         feed_dict=feed)
+
+            c = pick_top_n(preds, len(vocab))
+            samples.append(int_to_vocab[c])
+        
+    return ''.join(samples)
+
+checkpoint = tf.train.latest_checkpoint('checkpoints')
+samp = sample(checkpoint, 2000, lstm_size, len(vocab), prime="The ")
+print(samp)
