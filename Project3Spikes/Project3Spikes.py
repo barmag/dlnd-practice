@@ -68,6 +68,18 @@ def get_embed(input_data, vocab_size, embed_dim):
 
     embed = tf.nn.embedding_lookup(embeddings_matrix, input_data)
     return embed
+
+def build_rnn(cell, inputs):
+    """
+    Create a RNN using a RNN Cell
+    :param cell: RNN Cell
+    :param inputs: Input text data
+    :return: Tuple (Outputs, Final State)
+    """
+    outputs, final_state = tf.nn.dynamic_rnn(cell, inputs, dtype=tf.float32)
+    final_state = tf.identity(final_state, 'final_state')
+    return outputs, final_state
+
 text = '''
         Moe_Szyslak Moe's Tavern Where the elite meet to drink
         Bart_Simpson Eh yeah hello is Mike there Last name Rotch
