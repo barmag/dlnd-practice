@@ -1,5 +1,6 @@
 from collections import Counter
 import numpy as np
+import string
 
 def create_lookup_tables(text):
     # normalize text
@@ -9,11 +10,22 @@ def create_lookup_tables(text):
     counter = Counter(local_text)
     print(counter.most_common(20))
     vocab_to_int, int_to_vocab = {}, {}
-    vocab_list = (zip(counter, range(1, len(counter))))
+    vocab_list = (zip(counter, range(0, len(counter))))
     
     vocab_to_int = {word: i for word, i in vocab_list}
     int_to_vocab = dict(zip(vocab_to_int.values(), vocab_to_int.keys()))
     return vocab_to_int, int_to_vocab
+def token_lookup():
+    """
+    Generate a dict to turn punctuation into a token.
+    :return: Tokenize dictionary where the key is the punctuation and the value is the token
+    """
+    punctuation_dict = {
+        '.': 'period', ',': 'comma', '"': 'quotation_mark', 
+        ';': 'semicolon', '!': 'exclamation_mark', '?': 'question_mark',
+        '(': 'left_parentheses', ')': 'right_parentheses', '--': 'dash', '\n': 'return'
+    }
+    return punctuation_dict
 
 text = '''
         Moe_Szyslak Moe's Tavern Where the elite meet to drink
@@ -24,4 +36,5 @@ text = '''
         Homer_Simpson I got my problems Moe Give me another one
         Moe_Szyslak Homer hey you should not drink to forget your problems
         Barney_Gumble Yeah you should only drink to enhance your social skills'''
-create_lookup_tables(text)
+
+# create_lookup_tables(text)
