@@ -1,6 +1,7 @@
 from collections import Counter
 import numpy as np
 import string
+import tensorflow as tf
 
 def create_lookup_tables(text):
     # normalize text
@@ -26,6 +27,16 @@ def token_lookup():
         '(': 'left_parentheses', ')': 'right_parentheses', '--': 'dash', '\n': 'return'
     }
     return punctuation_dict
+
+def get_inputs():
+    """
+    Create TF Placeholders for input, targets, and learning rate.
+    :return: Tuple (input, targets, learning rate)
+    """
+    inputs = tf.placeholder(tf.int32, shape=(None, None), name='input')
+    targets = tf.placeholder(tf.int32, shape=(None, None))
+    learning_rate = tf.placeholder(tf.float32)
+    return inputs, targets, learning_rate
 
 text = '''
         Moe_Szyslak Moe's Tavern Where the elite meet to drink
