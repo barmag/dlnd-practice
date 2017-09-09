@@ -55,6 +55,19 @@ def get_init_cell(batch_size, rnn_size):
     cell = tf.contrib.rnn.MultiRNNCell([dropout]*num_layers)
     initial_state = tf.identity(cell.zero_state(batch_size, tf.float32), 'initial_state')
     return cell, initial_state
+
+def get_embed(input_data, vocab_size, embed_dim):
+    """
+    Create embedding for <input_data>.
+    :param input_data: TF placeholder for text input.
+    :param vocab_size: Number of words in vocabulary.
+    :param embed_dim: Number of embedding dimensions
+    :return: Embedded input.
+    """
+    embeddings_matrix = tf.random_uniform([vocab_size, embed_dim], -1.0, 1.0)
+
+    embed = tf.nn.embedding_lookup(embeddings_matrix, input_data)
+    return embed
 text = '''
         Moe_Szyslak Moe's Tavern Where the elite meet to drink
         Bart_Simpson Eh yeah hello is Mike there Last name Rotch
