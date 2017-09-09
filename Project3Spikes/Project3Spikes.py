@@ -38,6 +38,23 @@ def get_inputs():
     learning_rate = tf.placeholder(tf.float32)
     return inputs, targets, learning_rate
 
+def get_init_cell(batch_size, rnn_size):
+    """
+    Create an RNN Cell and initialize it.
+    :param batch_size: Size of batches
+    :param rnn_size: Size of RNNs
+    :return: Tuple (cell, initialize state)
+    """
+    num_layers = 1
+    keep_prop = 0.5
+    
+    lstm = tf.contrib.rnn.BasicLSTMCell(rnn_size)
+
+    dropout = tf.contrib.rnn.DropoutWrapper(lstm, input_keep_prob=keep_prop)
+
+    cell = tf.contrib.rnn.MultiRNNCell([dropout]*num_layers)
+    initial_state = tf.identity(cell.zero_state(batch_size, tf.float32), 'initial_state')
+    return cell, initial_state
 text = '''
         Moe_Szyslak Moe's Tavern Where the elite meet to drink
         Bart_Simpson Eh yeah hello is Mike there Last name Rotch
