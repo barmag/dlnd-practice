@@ -46,13 +46,11 @@ def get_init_cell(batch_size, rnn_size):
     :return: Tuple (cell, initialize state)
     """
     num_layers = 1
-    keep_prop = 0.5
-    
-    lstm = tf.contrib.rnn.BasicLSTMCell(rnn_size)
+    #keep_prop = 0.5
 
-    dropout = tf.contrib.rnn.DropoutWrapper(lstm, input_keep_prob=keep_prop)
+    #dropout = tf.contrib.rnn.DropoutWrapper(lstm, input_keep_prob=keep_prop)
 
-    cell = tf.contrib.rnn.MultiRNNCell([dropout]*num_layers)
+    cell = tf.contrib.rnn.MultiRNNCell([tf.contrib.rnn.BasicLSTMCell(rnn_size) for _ in range(0, num_layers)])
     initial_state = tf.identity(cell.zero_state(batch_size, tf.float32), 'initial_state')
     return cell, initial_state
 
@@ -94,7 +92,13 @@ def build_nn(cell, rnn_size, input_data, vocab_size, embed_dim):
     
     outputs, final_state = build_rnn(cell, embed)
     print(outputs.shape)
-    logits = tf.contrib.layers.fully_connected(outputs, vocab_size, activation_fn=None)
+    #logits = tf.contrib.layers.fully_connected(outputs, vocab_size, activation_fn=None)
+    logits = tf.contrib.layers.fully_connected(outputs, vocab_size, activation_fn=None,
+                                               biases_initializer = tf.zeros_initializer(),
+                                               weights_initializer= tf.contrib.layers.xavier_initializer_conv2d(
+                                                   uniform=True, 
+                                                   seed=None, 
+                                                   dtype=tf.float32))
     print(logits.shape)
     return logits, final_state
 
