@@ -36,4 +36,16 @@ def model_inputs():
 
     return inputs, targets, learning_rate, keep_prob, target_seq_length, max_target_length, source_seq_length
 
+def process_decoder_input(target_data, target_vocab_to_int, batch_size):
+    """
+    Preprocess target data for encoding
+    :param target_data: Target Placehoder
+    :param target_vocab_to_int: Dictionary to go from the target words to an id
+    :param batch_size: Batch Size
+    :return: Preprocessed target data
+    """
+    decoder_input = tf.strided_slice(target_data, [0,0], [batch_size, -1], [1,1])
+    decoder_input = tf.concat([tf.fill([batch_size, 1], target_vocab_to_int['<GO>']), decoder_input], 1)
+    return decoder_input
+
 print("tf loaded!")
