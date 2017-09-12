@@ -74,4 +74,25 @@ def encoding_layer(rnn_inputs, rnn_size, num_layers, keep_prob,
     rnn_out, rnn_state = tf.nn.dynamic_rnn(rnn_cell, embed, source_sequence_length, dtype=tf.float32)
     return rnn_out, rnn_state
 
+def decoding_layer_train(encoder_state, dec_cell, dec_embed_input, 
+                         target_sequence_length, max_summary_length, 
+                         output_layer, keep_prob):
+    """
+    Create a decoding layer for training
+    :param encoder_state: Encoder State
+    :param dec_cell: Decoder RNN Cell
+    :param dec_embed_input: Decoder embedded input
+    :param target_sequence_length: The lengths of each sequence in the target batch
+    :param max_summary_length: The length of the longest sequence in the batch
+    :param output_layer: Function to apply the output layer
+    :param keep_prob: Dropout keep probability
+    :return: BasicDecoderOutput containing training logits and sample_id
+    """
+    helper = tf.contrib.seq2seq.TrainingHelper(dec_embed_input, target_sequence_length)
+
+    decoder = tf.contrib.seq2seq.BasicDecoder(dec_cell, helper, encoder_state, output_layer=output_layer)
+    decoder_out = tf.contrib.seq2seq.dynamic_decode(decoder, impute_finished=True, maximum_iterations=max_summary_length)
+    
+    return decoder_out[0]
+
 print("tf loaded!")
