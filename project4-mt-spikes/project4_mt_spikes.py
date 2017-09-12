@@ -1,4 +1,5 @@
 import tensorflow as tf
+from tensorflow.python.layers.core import Dense
 
 def text_to_ids(source_text, target_text, source_vocab_to_int, target_vocab_to_int):
     """
@@ -121,5 +122,54 @@ def decoding_layer_infer(encoder_state, dec_cell, dec_embeddings, start_of_seque
     decoder_out = tf.contrib.seq2seq.dynamic_decode(decoder, impute_finished=True, maximum_iterations=max_target_sequence_length)
     
     return decoder_out[0]
+
+def decoding_layer(dec_input, encoder_state,
+                   target_sequence_length, max_target_sequence_length,
+                   rnn_size,
+                   num_layers, target_vocab_to_int, target_vocab_size,
+                   batch_size, keep_prob, decoding_embedding_size):
+    """
+    Create decoding layer
+    :param dec_input: Decoder input
+    :param encoder_state: Encoder state
+    :param target_sequence_length: The lengths of each sequence in the target batch
+    :param max_target_sequence_length: Maximum length of target sequences
+    :param rnn_size: RNN Size
+    :param num_layers: Number of layers
+    :param target_vocab_to_int: Dictionary to go from the target words to an id
+    :param target_vocab_size: Size of target vocabulary
+    :param batch_size: The size of the batch
+    :param keep_prob: Dropout keep probability
+    :param decoding_embedding_size: Decoding embedding size
+    :return: Tuple of (Training BasicDecoderOutput, Inference BasicDecoderOutput)
+    """
+    dec_embeddings = tf.Variable(tf.random_uniform([target_vocab_size, decoding_embedding_size]))
+    embed = tf.contrib.layers.embed_sequence(dec_input, target_vocab_size, decoding_embedding_size)
+
+    def lstm_cell(size):
+        cell = tf.contrib.rnn.LSTMCell(size,
+                                       initializer=tf.random_uniform_initializer(-0.1,0.1,seed=7))
+        dropout = tf.contrib.rnn.DropoutWrapper(cell, input_keep_prob=keep_prob, output_keep_prob=keep_prob)
+        return dropout
+    rnn_cell = tf.contrib.rnn.MultiRNNCell([lstm_cell(rnn_size) for _ in range(0, num_layers)])
+
+    #rnn_out, rnn_state = tf.nn.dynamic_rnn(rnn_cell, embed, target_sequence_length, dtype=tf.float32)
+
+    #dense layer
+    output_layer = Dense(target_vocab_size, 
+                                activation=None     #linear activation
+                                , kernel_initializer = tf.truncated_normal_initializer(mean = 0.0, stddev=0.1))
+    with tf.variable_scope('decode'):
+        training_decoder_out = decoding_layer_train(encoder_state, rnn_cell, embed
+                                                    , target_sequence_length, max_target_sequence_length, output_layer, keep_prob)
+
+    with tf.variable_scope('decode', reuse=True):
+        #print(dec_input.shape)
+        inference_decoder_output = decoding_layer_infer(encoder_state, rnn_cell, dec_embeddings
+                                                        , target_vocab_to_int['<GO>'], target_vocab_to_int['<EOS>']
+                                                        , max_target_sequence_length, target_vocab_size, output_layer
+                                                        , batch_size, keep_prob)
+
+    return training_decoder_out, inference_decoder_output
 
 print("tf loaded!")
