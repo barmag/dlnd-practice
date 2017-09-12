@@ -206,3 +206,16 @@ def seq2seq_model(input_data, target_data, keep_prob, batch_size,
                                                             , target_vocab_to_int, target_vocab_size
                                                             , batch_size, keep_prob, dec_embedding_size)
     return training_decoder_out, infer_decode_out
+
+def sentence_to_seq(sentence, vocab_to_int):
+    """
+    Convert a sentence to a sequence of ids
+    :param sentence: String
+    :param vocab_to_int: Dictionary to go from the words to an id
+    :return: List of word ids
+    """
+    sentence = sentence.lower()
+    print(sentence.split())
+    print(vocab_to_int)
+    sentence_ids = [vocab_to_int[w] if w in vocab_to_int.keys() else vocab_to_int['<UNK>'] for w in sentence.split()]
+    return sentence_ids
