@@ -48,4 +48,30 @@ def process_decoder_input(target_data, target_vocab_to_int, batch_size):
     decoder_input = tf.concat([tf.fill([batch_size, 1], target_vocab_to_int['<GO>']), decoder_input], 1)
     return decoder_input
 
+def encoding_layer(rnn_inputs, rnn_size, num_layers, keep_prob, 
+                   source_sequence_length, source_vocab_size, 
+                   encoding_embedding_size):
+    """
+    Create encoding layer
+    :param rnn_inputs: Inputs for the RNN
+    :param rnn_size: RNN Size
+    :param num_layers: Number of layers
+    :param keep_prob: Dropout keep probability
+    :param source_sequence_length: a list of the lengths of each sequence in the batch
+    :param source_vocab_size: vocabulary size of source data
+    :param encoding_embedding_size: embedding size of source data
+    :return: tuple (RNN output, RNN state)
+    """
+    embed = tf.contrib.layers.embed_sequence(rnn_inputs, source_vocab_size, encoding_embedding_size)
+
+    def lstm_cell(size):
+        cell = tf.contrib.rnn.LSTMCell(size,
+                                       initializer=tf.random_uniform_initializer(-0.1,0.1,seed=7))
+        dropout = tf.contrib.rnn.DropoutWrapper(cell, input_keep_prob=keep_prob, output_keep_prob=keep_prob)
+        return dropout
+    rnn_cell = tf.contrib.rnn.MultiRNNCell([lstm_cell(rnn_size) for _ in range(0, num_layers)])
+
+    rnn_out, rnn_state = tf.nn.dynamic_rnn(rnn_cell, embed, source_sequence_length, dtype=tf.float32)
+    return rnn_out, rnn_state
+
 print("tf loaded!")
