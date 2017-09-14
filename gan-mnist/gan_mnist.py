@@ -94,14 +94,25 @@ d_model_fake, d_logits_fake = discriminator(g_model, d_hidden_size, reuse=True, 
 # Calculate losses
 labels_real = tf.ones_like(d_logits_real) * (1-smooth)
 d_loss_real = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits
-                             (d_logits_real, labels_real))
+                             (logits=d_logits_real, labels=labels_real))
 
 labels_fake = tf.zeros_like(d_logits_fake)
 d_loss_fake = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits
-                             (d_logits_fake, labels_fake))
+                             (logits=d_logits_fake, labels=labels_fake))
 
-d_loss = d_loss + g_loss
+d_loss = d_loss_real + d_loss_fake
 
 g_labels = tf.ones_like(d_logits_fake)
 g_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits
-                        (d_logits_fake, g_labels))
+                        (logits=d_logits_fake, labels=g_labels))
+
+# Optimizers
+learning_rate = 0.002
+
+# Get the trainable_variables, split into G and D parts
+t_vars = tf.trainable_variables()
+g_vars = [var for var in t_vars if var.name.startswith('generator')]
+d_vars = [var for var in t_vars if var.name.startswith('discriminator')]
+
+d_train_opt = tf.train.AdamOptimizer(learning_rate).minimize(d_loss, var_list=d_vars)
+g_train_opt = tf.train.AdamOptimizer(learning_rate).minimize(g_loss, var_list=g_vars)
