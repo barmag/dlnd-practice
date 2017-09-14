@@ -90,3 +90,18 @@ g_model = generator(input_z, input_size, g_hidden_size, alpha=alpha)
 # Disriminator network here
 d_model_real, d_logits_real = discriminator(input_real, d_hidden_size, alpha=alpha)
 d_model_fake, d_logits_fake = discriminator(g_model, d_hidden_size, reuse=True, alpha=alpha)
+
+# Calculate losses
+labels_real = tf.ones_like(d_logits_real) * (1-smooth)
+d_loss_real = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits
+                             (d_logits_real, labels_real))
+
+labels_fake = tf.zeros_like(d_logits_fake)
+d_loss_fake = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits
+                             (d_logits_fake, labels_fake))
+
+d_loss = d_loss + g_loss
+
+g_labels = tf.ones_like(d_logits_fake)
+g_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits
+                        (d_logits_fake, g_labels))
