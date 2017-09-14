@@ -78,3 +78,15 @@ d_hidden_size = 128
 alpha = 0.01
 # Label smoothing 
 smooth = 0.1
+
+tf.reset_default_graph()
+# Create our input placeholders
+input_real, input_z = model_inputs(input_size, z_size)
+
+# Generator network here
+g_model = generator(input_z, input_size, g_hidden_size, alpha=alpha)
+# g_model is the generator output
+
+# Disriminator network here
+d_model_real, d_logits_real = discriminator(input_real, d_hidden_size, alpha=alpha)
+d_model_fake, d_logits_fake = discriminator(g_model, d_hidden_size, reuse=True, alpha=alpha)
