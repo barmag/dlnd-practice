@@ -12,6 +12,9 @@ def model_inputs(real_dim, z_dim):
     
     return inputs_real, inputs_z
 
+def leaky_relu(input, alpha):
+        return tf.maximum(input, alpha*input)
+
 def generator(z, out_dim, n_units=128, reuse=False,  alpha=0.01):
     ''' Build the generator network.
     
@@ -27,17 +30,39 @@ def generator(z, out_dim, n_units=128, reuse=False,  alpha=0.01):
         -------
         out: 
     '''
-    def leaky_relu(input):
-        return tf.maximum(input, alpha*input)
-
     with tf.variable_scope('generator', reuse=reuse): # finish this
         # Hidden layer
         h1 = tf.layers.dense(z, n_units, activation=None)
         # Leaky ReLU
-        h1 = leaky_relu(h1)
+        h1 = leaky_relu(h1, alpha)
         
         # Logits and tanh output
         logits = tf.layers.dense(h1, out_dim, activation=None)
         out = tf.tanh(logits)
         
         return out
+
+def discriminator(x, n_units=128, reuse=False, alpha=0.01):
+    ''' Build the discriminator network.
+    
+        Arguments
+        ---------
+        x : Input tensor for the discriminator
+        n_units: Number of units in hidden layer
+        reuse : Reuse the variables with tf.variable_scope
+        alpha : leak parameter for leaky ReLU
+        
+        Returns
+        -------
+        out, logits: 
+    '''
+    with tf.variable_scope('discriminator', reuse=reuse): # finish this
+        # Hidden layer
+        h1 = tf.layers.dense(x, n_units, activation=None)
+        # Leaky ReLU
+        h1 = leaky_relu(h1, alpha)
+        
+        logits = tf.layers.dense(h1, 1, activation=None)
+        out = tf.sigmoid(logits)
+        
+        return out, logits
