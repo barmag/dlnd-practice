@@ -46,26 +46,26 @@ def generator(z, out_dim, n_units=128, reuse=False,  alpha=0.01):
 def generator_dc(z, output_dim, reuse=False, alpha=0.2, training=True):
     with tf.variable_scope('generator', reuse=reuse):
         # First fully connected layer
-        n_units = 4 * 4 * 1024 #input for first convolution, width:4, height:4, and depth: 1024
-        x = tf.layers.dense(z, n_units)
+        n_units = 4 * 4 * 512 #input for first convolution, width:4, height:4, and depth: 1024
+        x1 = tf.layers.dense(z, n_units)
         x1 = tf.reshape(x1, (-1, 4, 4, 512))
         x1 = tf.layers.batch_normalization(x1, training=training)
         x1 = tf.nn.relu(x1)
 
         # fractionaly strided conv layer
         # out 8*8*256
-        x2 = tf.nn.conv2d_transpose(x1, 256, 5, strides=2, padding='same')
+        x2 = tf.layers.conv2d_transpose(x1, 256, 5, strides=2, padding='same')
         x2 = tf.layers.batch_normalization(x2, training=training)
         x2 = tf.nn.relu(x2)
 
         # fractionaly strided conv layer
         # out 16*16*128
-        x3 = tf.nn.conv2d_transpose(x2, 128, 5, strides=2, padding='same')
+        x3 = tf.layers.conv2d_transpose(x2, 128, 5, strides=2, padding='same')
         x3 = tf.layers.batch_normalization(x3, training=training)
         x3 = tf.nn.relu(x3)
         
         # Output layer, 32x32x3
-        logits = tf.nn.conv2d_transpose(x3, output_dim, 5, strides=2, padding='same')
+        logits = tf.layers.conv2d_transpose(x3, output_dim, 5, strides=2, padding='same')
         
         out = tf.tanh(logits)
         
@@ -76,15 +76,15 @@ def discriminator_gan(x, reuse=False, alpha=0.2):
         # Input layer is 32x32x3
 
         #conv layer 1, out 16*16*64
-        x1 = tf.nn.conv2d(x, 64, 5, strides=2, padding='same')
+        x1 = tf.layers.conv2d(x, 64, 5, strides=2, padding='same')
         x1 = tf.maximum(alpha*x1, x1)
 
         #conv layer 2, out 8*8*128
-        x2 = tf.nn.conv2d(x1, 128, 5, strides=2, padding='same')
+        x2 = tf.layers.conv2d(x1, 128, 5, strides=2, padding='same')
         x2 = tf.maximum(alpha*x2, x2)
 
         #conv layer 3 4*4*256
-        x3 = tf.nn.conv2d(x2, 256, 5, strides=2, padding='same')
+        x3 = tf.layers.conv2d(x2, 256, 5, strides=2, padding='same')
         x3 = tf.maximum(alpha*x2, x2)
         
         flat = tf.reshape(x3, (-1, 4*4*256))
