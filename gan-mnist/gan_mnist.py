@@ -42,6 +42,7 @@ def generator(z, out_dim, n_units=128, reuse=False,  alpha=0.01):
         out = tf.tanh(logits)
         
         return out
+
 def generator_dc(z, output_dim, reuse=False, alpha=0.2, training=True):
     with tf.variable_scope('generator', reuse=reuse):
         # First fully connected layer
@@ -69,6 +70,29 @@ def generator_dc(z, output_dim, reuse=False, alpha=0.2, training=True):
         out = tf.tanh(logits)
         
         return out
+
+def discriminator_gan(x, reuse=False, alpha=0.2):
+    with tf.variable_scope('discriminator', reuse=reuse):
+        # Input layer is 32x32x3
+
+        #conv layer 1, out 16*16*64
+        x1 = tf.nn.conv2d(x, 64, 5, strides=2, padding='same')
+        x1 = tf.maximum(alpha*x1, x1)
+
+        #conv layer 2, out 8*8*128
+        x2 = tf.nn.conv2d(x1, 128, 5, strides=2, padding='same')
+        x2 = tf.maximum(alpha*x2, x2)
+
+        #conv layer 3 4*4*256
+        x3 = tf.nn.conv2d(x2, 256, 5, strides=2, padding='same')
+        x3 = tf.maximum(alpha*x2, x2)
+        
+        flat = tf.reshape(x3, (-1, 4*4*256))
+        logits = tf.layers.dense(flat, 1)
+        out = tf.sigmoid(logits)
+        
+        return out, logits
+
 def discriminator(x, n_units=128, reuse=False, alpha=0.01):
     ''' Build the discriminator network.
     
