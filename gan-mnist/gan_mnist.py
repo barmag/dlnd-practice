@@ -33,6 +33,7 @@ def generator(z, out_dim, n_units=128, reuse=False,  alpha=0.01):
     with tf.variable_scope('generator', reuse=reuse): # finish this
         # Hidden layer
         h1 = tf.layers.dense(z, n_units, activation=None)
+        
         # Leaky ReLU
         h1 = leaky_relu(h1, alpha)
         
@@ -41,7 +42,33 @@ def generator(z, out_dim, n_units=128, reuse=False,  alpha=0.01):
         out = tf.tanh(logits)
         
         return out
+def generator_dc(z, output_dim, reuse=False, alpha=0.2, training=True):
+    with tf.variable_scope('generator', reuse=reuse):
+        # First fully connected layer
+        n_units = 4 * 4 * 1024 #input for first convolution, width:4, height:4, and depth: 1024
+        x = tf.layers.dense(z, n_units)
+        x1 = tf.reshape(x1, (-1, 4, 4, 512))
+        x1 = tf.layers.batch_normalization(x1, training=training)
+        x1 = tf.nn.relu(x1)
 
+        # fractionaly strided conv layer
+        # out 8*8*256
+        x2 = tf.nn.conv2d_transpose(x1, 256, 5, strides=2, padding='same')
+        x2 = tf.layers.batch_normalization(x2, training=training)
+        x2 = tf.nn.relu(x2)
+
+        # fractionaly strided conv layer
+        # out 16*16*128
+        x3 = tf.nn.conv2d_transpose(x2, 128, 5, strides=2, padding='same')
+        x3 = tf.layers.batch_normalization(x3, training=training)
+        x3 = tf.nn.relu(x3)
+        
+        # Output layer, 32x32x3
+        logits = tf.nn.conv2d_transpose(x3, output_dim, 5, strides=2, padding='same')
+        
+        out = tf.tanh(logits)
+        
+        return out
 def discriminator(x, n_units=128, reuse=False, alpha=0.01):
     ''' Build the discriminator network.
     
