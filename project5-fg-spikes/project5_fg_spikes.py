@@ -24,6 +24,7 @@ DON'T MODIFY ANYTHING IN THIS CELL THAT IS BELOW THIS LINE
 """
 tests.test_model_inputs(model_inputs)
 
+alpha = 0.2     # alpha for leaky relu
 def discriminator(images, reuse=False):
     """
     Create the discriminator network
@@ -32,7 +33,6 @@ def discriminator(images, reuse=False):
     :return: Tuple of (tensor output of the discriminator, tensor logits of the discriminator)
     """
 
-    alpha = 0.2     # alpha for leaky relu
     istraining = True   # flag for batch normalization
 
     with tf.variable_scope("discriminator", reuse=reuse):
@@ -70,3 +70,46 @@ def discriminator(images, reuse=False):
 DON'T MODIFY ANYTHING IN THIS CELL THAT IS BELOW THIS LINE
 """
 tests.test_discriminator(discriminator, tf)
+
+def generator(z, out_channel_dim, is_train=True):
+    """
+    Create the generator network
+    :param z: Input z
+    :param out_channel_dim: The number of channels in the output image
+    :param is_train: Boolean if generator is being used for training
+    :return: The tensor output of the generator
+    """
+    with tf.variable_scope('generator', reuse=not is_train):
+        # fully connected layer input
+        # output 4*4*512
+        x1 = tf.layers.dense(z, 4*4*512)
+
+        #reshape
+        x1 = tf.reshape(x1, (-1, 4, 4, 512))
+        # first transpose conv layer 5 kernel, 256 filters, strides 2
+        # output 7*7*256
+        # batch norm and leaky relu activation
+        x2 = tf.layers.conv2d_transpose(x1, 256, 4, strides=1, padding='valid')
+        x2 = tf.layers.batch_normalization(x2, training=is_train)
+        x2 = tf.maximum(alpha*x2, x2)
+
+        # second transpose conv layer 5 kernel, 128 filters, strides 2
+        # output 14*14*128
+        # batch norm and leaky relu
+        x3 = tf.layers.conv2d_transpose(x2, 128, 5, strides=2, padding='same')
+        x3 = tf.layers.batch_normalization(x3, training=is_train)
+        x3 = tf.maximum(alpha*x3, x3)
+
+        # output conv layer 5 kernel, 3 filters, strides 2
+        # output 28*28*3
+        # tanh out
+        logits = tf.layers.conv2d_transpose(x3, out_channel_dim, 5, strides=2, padding='same')
+        out = tf.tanh(logits)
+    
+    return out
+
+
+"""
+DON'T MODIFY ANYTHING IN THIS CELL THAT IS BELOW THIS LINE
+"""
+tests.test_generator(generator, tf)
