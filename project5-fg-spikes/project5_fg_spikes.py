@@ -1,4 +1,7 @@
+import numpy as np
 import tensorflow as tf
+
+import helper
 
 import problem_unittests as tests
 
@@ -174,3 +177,75 @@ def model_opt(d_loss, g_loss, learning_rate, beta1):
 DON'T MODIFY ANYTHING IN THIS CELL THAT IS BELOW THIS LINE
 """
 tests.test_model_opt(model_opt, tf)
+
+def show_generator_output(sess, n_images, input_z, out_channel_dim, image_mode):
+    """
+    Show example output for the generator
+    :param sess: TensorFlow session
+    :param n_images: Number of Images to display
+    :param input_z: Input Z Tensor
+    :param out_channel_dim: The number of channels in the output image
+    :param image_mode: The mode to use for images ("RGB" or "L")
+    """
+    cmap = None if image_mode == 'RGB' else 'gray'
+    z_dim = input_z.get_shape().as_list()[-1]
+    example_z = np.random.uniform(-1, 1, size=[n_images, z_dim])
+
+    samples = sess.run(
+        generator(input_z, out_channel_dim, False),
+        feed_dict={input_z: example_z})
+
+    images_grid = helper.images_square_grid(samples, image_mode)
+    pyplot.imshow(images_grid, cmap=cmap)
+    pyplot.show()
+
+def train(epoch_count, batch_size, z_dim, learning_rate, beta1, get_batches, data_shape, data_image_mode):
+    """
+    Train the GAN
+    :param epoch_count: Number of epochs
+    :param batch_size: Batch Size
+    :param z_dim: Z dimension
+    :param learning_rate: Learning Rate
+    :param beta1: The exponential decay rate for the 1st moment in the optimizer
+    :param get_batches: Function to get batches
+    :param data_shape: Shape of the data
+    :param data_image_mode: The image mode to use for images ("RGB" or "L")
+    """
+    tf.reset_default_graph()
+    saver = tf.train.Saver()
+    sample_z = np.random.uniform(-0.5, 0.5, size(64, z_dim))
+    samples, losses = [], []
+    steps = 0
+    print_every = 10
+
+    input_real, input_fake, lr = model_inputs(data_shape[1], data_shape[2], data_shape[3], z_dim)
+
+    d_loss, g_loss = model_loss(input_real, input_fake, data_shape[3])
+
+    d_opt, g_opt = model_opt(d_loss, g_loss, lr, beta1)
+    
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        for epoch_i in range(epoch_count):
+            for batch_images in get_batches(batch_size):
+                steps += 1
+                # sample noize for generator input
+                batch_z = np.random.uniform(-0.5, 0.5, (batch_size, z_dim))
+
+                # run optimizers
+                _ = sess.run(d_opt, feed_dict={input_real: batch_images, input_fake: batch_z})
+                # test with one pass, then add passes if necessary
+                _ = sess.run(g_opt, feed_dict={input_fake: batch_z, input_real: batch_images})
+
+                if steps % print_every == 0:
+                    train_loss_d = d_loss.eval({input_fake: batch_z, input_real: batch_images})
+                    train_loss_g = g_loss.eval({input_fake: batch_z})
+
+                    show_generator_output(sess, 64, sample_z, data_shape[3], data_image_mode)
+                    print("Epoch {}/Step {}...".format(epoch_i+1, steps),
+                          "Discriminator Loss: {:.4f}...".format(train_loss_d),
+                          "Generator Loss: {:.4f}".format(train_loss_g))
+                    losses.append((train_loss_d, train_loss_g))
+
+        saver.save(sess, './checkpoints/generator.ckpt')
+                

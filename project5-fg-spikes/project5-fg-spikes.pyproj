@@ -22,6 +22,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="helper.py" />
     <Compile Include="problem_unittests.py" />
     <Compile Include="project5_fg_spikes.py" />
   </ItemGroup>
