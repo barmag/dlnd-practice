@@ -143,3 +143,34 @@ def model_loss(input_real, input_z, out_channel_dim):
 DON'T MODIFY ANYTHING IN THIS CELL THAT IS BELOW THIS LINE
 """
 tests.test_model_loss(model_loss)
+
+def model_opt(d_loss, g_loss, learning_rate, beta1):
+    """
+    Get optimization operations
+    :param d_loss: Discriminator loss Tensor
+    :param g_loss: Generator loss Tensor
+    :param learning_rate: Learning Rate Placeholder
+    :param beta1: The exponential decay rate for the 1st moment in the optimizer
+    :return: A tuple of (discriminator training operation, generator training operation)
+    """
+    
+    # get weights and biases for the model
+    # split into discriminator and generator variables
+    model_variables = tf.trainable_variables()
+    discriminator_variables = [var for var in model_variables if var.name.startswith('discriminator')]
+    generator_variables = [var for var in model_variables if var.name.startswith('generator')]
+
+    # optimize
+    with tf.control_dependencies(tf.get_collection(tf.GraphKeys.UPDATE_OPS)):
+        discriminator_optimizer = tf.train.AdamOptimizer(learning_rate, beta1).minimize(
+            d_loss, var_list=discriminator_variables)
+        generator_optimizer = tf.train.AdamOptimizer(learning_rate, beta1).minimize(
+            g_loss, var_list=generator_variables)
+    
+    return discriminator_optimizer, generator_optimizer
+
+
+"""
+DON'T MODIFY ANYTHING IN THIS CELL THAT IS BELOW THIS LINE
+"""
+tests.test_model_opt(model_opt, tf)
