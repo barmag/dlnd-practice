@@ -113,3 +113,33 @@ def generator(z, out_channel_dim, is_train=True):
 DON'T MODIFY ANYTHING IN THIS CELL THAT IS BELOW THIS LINE
 """
 tests.test_generator(generator, tf)
+
+def model_loss(input_real, input_z, out_channel_dim):
+    """
+    Get the loss for the discriminator and generator
+    :param input_real: Images from the real dataset
+    :param input_z: Z input
+    :param out_channel_dim: The number of channels in the output image
+    :return: A tuple of (discriminator loss, generator loss)
+    """
+    
+    g_model = generator(input_z, out_channel_dim, is_train=True)
+    d_model_real, d_logits_real = discriminator(input_real, reuse=False)
+    d_model_fake, d_logits_fake = discriminator(g_model, reuse=True)
+
+    d_loss_real = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits
+                                 (logits=d_logits_real, labels=tf.ones_like(d_model_real)))
+    d_loss_fake = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits
+                                 (logits=d_logits_fake, labels=tf.zeros_like(d_model_fake)))
+    g_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits
+                            (logits=d_logits_fake, labels=tf.ones_like(d_model_fake)))
+
+    d_loss = d_loss_fake + d_loss_real
+    
+    return d_loss, g_loss
+
+
+"""
+DON'T MODIFY ANYTHING IN THIS CELL THAT IS BELOW THIS LINE
+"""
+tests.test_model_loss(model_loss)
