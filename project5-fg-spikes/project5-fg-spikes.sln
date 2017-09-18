@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.3
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "project5-fg-spikes", "project5-fg-spikes.pyproj", "{FBC36CD5-2791-4718-B30D-CD2D25904D07}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FBC36CD5-2791-4718-B30D-CD2D25904D07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBC36CD5-2791-4718-B30D-CD2D25904D07}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5F38D73F-3B56-4E43-A1F8-50D88A680D57}
+	EndGlobalSection
+EndGlobal
