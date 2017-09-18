@@ -212,8 +212,8 @@ def train(epoch_count, batch_size, z_dim, learning_rate, beta1, get_batches, dat
     :param data_image_mode: The image mode to use for images ("RGB" or "L")
     """
     tf.reset_default_graph()
-    saver = tf.train.Saver()
-    sample_z = np.random.uniform(-0.5, 0.5, size(64, z_dim))
+    
+    sample_z = np.random.uniform(-0.5, 0.5, (64, z_dim))
     samples, losses = [], []
     steps = 0
     print_every = 10
@@ -224,6 +224,7 @@ def train(epoch_count, batch_size, z_dim, learning_rate, beta1, get_batches, dat
 
     d_opt, g_opt = model_opt(d_loss, g_loss, lr, beta1)
     
+    saver = tf.train.Saver()
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         for epoch_i in range(epoch_count):
@@ -233,15 +234,15 @@ def train(epoch_count, batch_size, z_dim, learning_rate, beta1, get_batches, dat
                 batch_z = np.random.uniform(-0.5, 0.5, (batch_size, z_dim))
 
                 # run optimizers
-                _ = sess.run(d_opt, feed_dict={input_real: batch_images, input_fake: batch_z})
+                _ = sess.run(d_opt, feed_dict={input_real: batch_images, input_fake: batch_z, lr: learning_rate})
                 # test with one pass, then add passes if necessary
-                _ = sess.run(g_opt, feed_dict={input_fake: batch_z, input_real: batch_images})
+                _ = sess.run(g_opt, feed_dict={input_fake: batch_z, input_real: batch_images, lr: learning_rate})
 
                 if steps % print_every == 0:
                     train_loss_d = d_loss.eval({input_fake: batch_z, input_real: batch_images})
                     train_loss_g = g_loss.eval({input_fake: batch_z})
 
-                    show_generator_output(sess, 64, sample_z, data_shape[3], data_image_mode)
+                    show_generator_output(sess, 64, input_fake, data_shape[3], data_image_mode)
                     print("Epoch {}/Step {}...".format(epoch_i+1, steps),
                           "Discriminator Loss: {:.4f}...".format(train_loss_d),
                           "Generator Loss: {:.4f}".format(train_loss_g))
