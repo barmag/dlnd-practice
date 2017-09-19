@@ -43,20 +43,23 @@ def discriminator(images, reuse=False):
         # first conv layer, kernel 5, filters 64, strides 2
         # out 14*14*64
         # leaky relu activation, no pooling, no batch normalization
-        x1 = tf.layers.conv2d(images, 64, 5, strides=2, padding='same')
+        x1 = tf.layers.conv2d(images, 64, 5, strides=2, padding='same'
+                              , kernel_initializer=tf.contrib.layers.xavier_initializer())
         x1 = tf.maximum(alpha*x1, x1)
 
         # second conv layer, kernel 5, filters 128, strides 2
         # out 7*7*128
         # leaky relu activation, no pooling, with batch normalization
-        x2 = tf.layers.conv2d(x1, 128, 5, strides=2, padding='same')
+        x2 = tf.layers.conv2d(x1, 128, 5, strides=2, padding='same'
+                              , kernel_initializer=tf.contrib.layers.xavier_initializer())
         x2 = tf.layers.batch_normalization(x2, training=istraining)
         x2 = tf.maximum(alpha*x2, x2)
 
         # third conv layer, kernel 5, filters 256, strides 2
         # out 4*4*256
         # leaky relu activation, no pooling, with batch normalization
-        x3 = tf.layers.conv2d(x2, 256, 5, strides=2, padding='same')
+        x3 = tf.layers.conv2d(x2, 256, 5, strides=2, padding='same'
+                              , kernel_initializer=tf.contrib.layers.xavier_initializer())
         x3 = tf.layers.batch_normalization(x3, training=istraining)
         x3 = tf.maximum(alpha*x2, x2)
 
@@ -92,21 +95,24 @@ def generator(z, out_channel_dim, is_train=True):
         # first transpose conv layer 5 kernel, 256 filters, strides 2
         # output 7*7*256
         # batch norm and leaky relu activation
-        x2 = tf.layers.conv2d_transpose(x1, 256, 4, strides=1, padding='valid')
+        x2 = tf.layers.conv2d_transpose(x1, 256, 4, strides=1, padding='valid'
+                                        , kernel_initializer=tf.contrib.layers.xavier_initializer())
         x2 = tf.layers.batch_normalization(x2, training=is_train)
         x2 = tf.maximum(alpha*x2, x2)
 
         # second transpose conv layer 5 kernel, 128 filters, strides 2
         # output 14*14*128
         # batch norm and leaky relu
-        x3 = tf.layers.conv2d_transpose(x2, 128, 5, strides=2, padding='same')
+        x3 = tf.layers.conv2d_transpose(x2, 128, 5, strides=2, padding='same'
+                                        , kernel_initializer=tf.contrib.layers.xavier_initializer())
         x3 = tf.layers.batch_normalization(x3, training=is_train)
         x3 = tf.maximum(alpha*x3, x3)
 
         # output conv layer 5 kernel, 3 filters, strides 2
         # output 28*28*3
         # tanh out
-        logits = tf.layers.conv2d_transpose(x3, out_channel_dim, 5, strides=2, padding='same')
+        logits = tf.layers.conv2d_transpose(x3, out_channel_dim, 5, strides=2, padding='same'
+                                            , kernel_initializer=tf.contrib.layers.xavier_initializer())
         out = tf.tanh(logits)
     
     return out
